@@ -35,7 +35,7 @@ def retry_on_exception(number_of_retries: int=3, default_after_all_retries_faile
                     return Value
                 except:
                     l.error('EXCEPTION: {}'.format(traceback.format_exc()))
-            l.info('Function {}() finished in {} seconds'.format(func.__name__, run_time))
+            l.info('Function {}() retried {} times without success'.format(func.__name__, retries))
             if isinstance(default_after_all_retries_failed, Exception):
                 raise default_after_all_retries_failed
             return default_after_all_retries_failed
