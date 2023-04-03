@@ -7,7 +7,7 @@ def _get_final_logging_level(force_debug: bool=False):
     if force_debug is True:
         return logging.DEBUG
     try:
-        if bool(int(os.getenv('DEBUG', '1'))) is True:
+        if bool(int(os.getenv('DEBUG', '0'))) is True:
             return logging.DEBUG
     except:
         pass
