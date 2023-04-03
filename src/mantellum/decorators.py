@@ -1,5 +1,6 @@
 import functools
 import traceback
+import time
 from mantellum.logging_utils import get_logger
 from mantellum.date_and_time_utils import get_utc_timestamp
 
@@ -21,13 +22,13 @@ def timer(func):
     return wrapper_timer
 
 
-def retry_on_exception(number_of_retries: int=3, default_after_all_retries_failed=raise_general_exception(description='All retries exhausted')):
+def retry_on_exception(number_of_retries: int=3, default_after_all_retries_failed=raise_general_exception(description='All retries exhausted'), sleep_time_seconds_between_retries: int=1):
     def retry_func(func):
         l = get_logger()
         @functools.wraps(func)
         def wrapper_func(*args, **kwargs):
             retries = 0
-            while retries < number_of_retries:
+            while retries < number_of_retries+1:
                 l.info('Try #{} for function {}()'.format(retries, func.__name__))
                 try:
                     retries += 1
@@ -35,6 +36,7 @@ def retry_on_exception(number_of_retries: int=3, default_after_all_retries_faile
                     return Value
                 except:
                     l.error('EXCEPTION: {}'.format(traceback.format_exc()))
+                    time.sleep(sleep_time_seconds_between_retries)
             l.info('Function {}() retried {} times without success'.format(func.__name__, retries))
             if isinstance(default_after_all_retries_failed, Exception):
                 raise default_after_all_retries_failed
