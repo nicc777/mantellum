@@ -20,7 +20,7 @@ def _get_final_logging_level(force_debug: bool=False):
     return logging.INFO
 
 
-def set_custom_logger(custom_name: str=None, force_debug: bool=False)->logging.Logger:
+def set_logger(custom_name: str=None, force_debug: bool=False)->logging.Logger:
     final_logging_level = _get_final_logging_level(force_debug=force_debug)
     script_name = os.path.basename(__file__)
     script_name = script_name.replace('.py', '')
@@ -39,7 +39,11 @@ def set_custom_logger(custom_name: str=None, force_debug: bool=False)->logging.L
 
 
 packaged_logger = LoggingImpl()
-set_custom_logger(custom_name=None, force_debug=False)
+set_logger(custom_name=None, force_debug=False)
+
+
+def set_custom_logger(logger: logging.Logger):
+    packaged_logger.logger = logger
 
 
 def get_logger()->logging.Logger:
