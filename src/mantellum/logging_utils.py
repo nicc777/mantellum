@@ -3,6 +3,12 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 
 
+class LoggingImpl:
+
+    def __init__(self):
+        self.logger = None
+
+
 def _get_final_logging_level(force_debug: bool=False):
     if force_debug is True:
         return logging.DEBUG
@@ -14,7 +20,7 @@ def _get_final_logging_level(force_debug: bool=False):
     return logging.INFO
 
 
-def get_logger(custom_name: str=None, force_debug: bool=False)->logging.Logger:
+def set_custom_logger(custom_name: str=None, force_debug: bool=False)->logging.Logger:
     final_logging_level = _get_final_logging_level(force_debug=force_debug)
     script_name = os.path.basename(__file__)
     script_name = script_name.replace('.py', '')
@@ -29,5 +35,15 @@ def get_logger(custom_name: str=None, force_debug: bool=False)->logging.Logger:
     logger.setLevel(final_logging_level)
     logger.info('STARTING')
     logger.debug('DEBUG enabled')
-    return logger
+    packaged_logger.logger = logger
+
+
+packaged_logger = LoggingImpl()
+set_custom_logger(custom_name=None, force_debug=False)
+
+
+def get_logger()->logging.Logger:
+    return packaged_logger.logger
+
+
 
