@@ -24,7 +24,7 @@ print('sys.path={}'.format(sys.path))
 import unittest
 
 
-from mantellum import *
+from mantellum.decorators import *
 
 running_path = os.getcwd()
 print('Current Working Path: {}'.format(running_path))
