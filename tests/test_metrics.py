@@ -78,6 +78,15 @@ class TestMetricRecords(unittest.TestCase):    # pragma: no cover
         self.assertIsNotNone(dump)
         self.assertIsInstance(dump, dict)
         print('DUMP as JSON: {}'.format(json.dumps(dump, default=str)))
+        self.assertTrue('MetricRecords' in dump)
+        metric_records = dump['MetricRecords']
+        self.assertIsNotNone(metric_records)
+        self.assertIsInstance(metric_records, list)
+        self.assertTrue(len(metric_records) > 0)
+        for metric_record in metric_records:
+            self.assertIsNotNone(metric_record)
+            self.assertIsInstance(metric_record, dict)
+            self.assertTrue(len(metric_record) > 0)
 
 
 
