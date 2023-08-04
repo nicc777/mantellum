@@ -109,8 +109,8 @@ class MetricPushHandlerBaseClass:
             traceback.print_exc()
 
 
-def dummy_metric_push_handler(metric_record: dict):
-    print('METRIC RECORD: {}'.format(json.dumps(data, default=str)))
+def dummy_metric_push_handler(metric_records: MetricRecords):
+    print('dummy_metric_push_handler(): METRIC RECORDS as JSON: {}'.format(json.dumps(metric_records.to_dict(), default=str)))
 
 
 class DummyMetricPushHandler(MetricPushHandlerBaseClass):
@@ -131,9 +131,8 @@ class MetricWrapper:
         self.records.append(record)
 
     def push_metrics(self, clear_records_after_push: bool=True):
-        if 'MetricRecords' in self.records:
-            for record in self.records['MetricRecords']:
-                self.push_metric_handler.push_metric(record=record)
+        for record in self.records['MetricRecords']:
+            self.push_metric_handler.push_metric(record=record)
         if clear_records_after_push is True:
             self.records = list()
 
