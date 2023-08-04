@@ -57,6 +57,29 @@ class TestClassDimensions(unittest.TestCase):    # pragma: no cover
             self.assertTrue('Value' in item)
 
 
+class TestMetricRecords(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        print('='*80)
+        self.d = Dimensions()
+        self.d.add_dimension(dimension=Dimension(name='Application', value='TestApp'))
+        self.d.add_dimension(dimension=Dimension(name='Function', value='TestFunction'))
+
+    def tearDown(self):
+        print('-'*40)
+
+    def test_metric_records(self):
+        record = MetricRecords(name='UnitTest')
+        record.record_dimension_value(
+            dimensions=self.d, 
+            recorded_value=1
+        )
+        dump = record.to_dict()
+        self.assertIsNotNone(dump)
+        self.assertIsInstance(dump, dict)
+        print('DUMP as JSON: {}'.format(json.dumps(dump, default=str)))
+
+
 
 if __name__ == '__main__':
     unittest.main()

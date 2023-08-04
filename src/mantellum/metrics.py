@@ -47,9 +47,9 @@ class Dimensions:
         }
 
 
-class MetricRecord:
+class MetricRecords:
 
-    def __init__(self, metric_unit: str='Count', storage_resolution: int=60):
+    def __init__(self, name: str, metric_unit: str='Count', storage_resolution: int=60):
         self.name = name
         self.metric_unit = metric_unit
         self.storage_resolution = storage_resolution
@@ -65,7 +65,7 @@ class MetricRecord:
         )
 
     def to_dict(self):
-        data = lst()
+        data = list()
         for record in self.records:
             data.append(
                 {
@@ -77,6 +77,9 @@ class MetricRecord:
                     'StorageResolution': self.storage_resolution
                 }
             )
+        return {
+            'MetricRecords': data
+        }
 
 
 class MetricPushHandlerBaseClass:
@@ -92,7 +95,7 @@ class MetricPushHandlerBaseClass:
     def add_named_parameter(self, name: str, value: object):
         self.named_parameter_values[name] = value
 
-    def push_metric(self, record: MetricRecord, positional_parameter_overrides: list=None, named_parameter_overrides: dict=None):
+    def push_metric(self, record: MetricRecords, positional_parameter_overrides: list=None, named_parameter_overrides: dict=None):
         final_args = self.positional_parameter_values
         if positional_parameter_overrides is not None:
             final_args = positional_parameter_overrides
@@ -124,7 +127,7 @@ class MetricWrapper:
         self.records = list()
         self.push_metric_handler = push_metric_handler
 
-    def add_metric_record(self, record: MetricRecord):
+    def add_metric_record(self, record: MetricRecords):
         self.records.append(record)
 
     def push_metrics(self, clear_records_after_push: bool=True):
@@ -172,7 +175,7 @@ class MeasuredFunctionCallHandler:
 
         finish_time = get_utc_timestamp(with_decimal=True)
         diff_time = finish_time - start_time
-        record = MetricRecord(metric_unit='Seconds', storage_resolution=60)
+        record = MetricRecords(metric_unit='Seconds', storage_resolution=60)
         record.record_dimension_value(
             dimensions=[
                 Dimension(name='ApplicationName', value=self.application_name),
@@ -181,7 +184,7 @@ class MeasuredFunctionCallHandler:
             recorded_value=diff_time,
             override_timestamp_value=finish_time
         )
-        self.metric_wrapper.add_metric_record(record=MetricRecord(metric_unit='', storage_resolution=60))
+        self.metric_wrapper.add_metric_record(record=MetricRecords(metric_unit='', storage_resolution=60))
         if exception_raised is True and absorb_exception is False and exception_object is not None:
             raise exception_object
 
