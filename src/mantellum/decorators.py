@@ -6,18 +6,26 @@ from mantellum.logging_utils import get_logger
 from mantellum.date_and_time_utils import get_utc_timestamp
 
 
+decorator_logger = get_logger()
+
+
+def override_logger(new_logger):
+    global decorator_logger
+    decorator_logger = new_logger
+
+
 def raise_general_exception(description: str):
     return Exception(description)
 
 
-def timer(func, log_text_to_add: str='-', l=get_logger()):
+def timer(func):
     @functools.wraps(func)
     def wrapper_timer(*args, **kwargs):
         start_time = get_utc_timestamp(with_decimal=True)
         value = func(*args, **kwargs)
         end_time = get_utc_timestamp(with_decimal=True)
         run_time = end_time - start_time
-        l.info('{} {}() {} seconds'.format(log_text_to_add, func.__name__, run_time))
+        decorator_logger.info('{}() {} seconds'.format(func.__name__, run_time))
         return value
     return wrapper_timer
 
@@ -26,7 +34,6 @@ def retry_on_exception(
     number_of_retries: int=3,
     default_after_all_retries_failed=None,
     sleep_time_seconds_between_retries: int=1,
-    l=get_logger(),
     retry_only_named_exceptions: list=list(),
     ignore_retry_on_named_exceptions: list=list(),
     enable_jitter: bool=False
@@ -62,7 +69,7 @@ def retry_on_exception(
             def wrapper_func(*args, **kwargs):
                 retries = 0
                 while remain_in_retry_loop:
-                    l.info('Try #{} for function {}()'.format(retries, func.__name__))
+                    decorator_logger.info('Try #{} for function {}()'.format(retries, func.__name__))
                     try:
                         retries += 1
                         value = func(*args, **kwargs)
@@ -91,7 +98,7 @@ def retry_on_exception(
                                 time.sleep(retries+jitter_time)
                     if number_of_retries > retries:
                         remain_in_retry_loop = False
-                l.info('Function {}() retried {} times without success'.format(func.__name__, retries-1))
+                decorator_logger.info('Function {}() retried {} times without success'.format(func.__name__, retries-1))
                 raise Exception(final_reason)
             return wrapper_func
     except:

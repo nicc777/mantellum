@@ -1,7 +1,8 @@
 {
     "cSpell.words": [
         "levelname",
-        "mantellum"
+        "mantellum",
+        "Oopsie"
     ],
     "python.testing.unittestArgs": [
         "-v",

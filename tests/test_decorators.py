@@ -10,6 +10,7 @@ import sys
 import os
 import json
 import time
+import tempfile
 
 relative_path_of_this_test = os.path.realpath(__file__)
 src_path = '{}{}src'.format(
@@ -58,15 +59,26 @@ class TestLogger:
     def debug(self, message: str):
         self.add_log_event(message=message, level='DEBUG')
 
+    def reset(self):
+        self.messages = list()
+
 
 class TestDecoratorTimer(unittest.TestCase):    # pragma: no cover
 
     def setUp(self):
-        print('-'*80)
+        print('='*80)
+        self.l = TestLogger()
+        self.l.reset()
+        override_logger(new_logger=self.l)
+
+    def tearDown(self):
+        print('Log Message Dump:')
+        print('-'*40)
+        print('{}'.format(json.dumps(self.l.messages, default=str)))
 
     def test_function_taking_1_second(self):
 
-        @timer(l=TestLogger())
+        @timer
         def test_function()->int:
             time.sleep(1)
             return 1
@@ -76,6 +88,48 @@ class TestDecoratorTimer(unittest.TestCase):    # pragma: no cover
         self.assertIsInstance(result, int)
         self.assertEqual(result, 1)
 
+        self.assertIsNotNone(self.l)
+        self.assertIsNotNone(self.l.messages)
+        self.assertIsInstance(self.l.messages, list)
+        self.assertTrue(len(self.l.messages) > 0)
+
+
+class TestDecoratorRetryOnException(unittest.TestCase):    # pragma: no cover
+
+    def setUp(self):
+        print('='*80)
+        self.l = TestLogger()
+        self.l.reset()
+        override_logger(new_logger=self.l)
+        self.tmp_file_handler = tempfile.TemporaryFile()
+
+    def tearDown(self):
+        self.tmp_file_handler.close()
+        print('Log Message Dump:')
+        print('-'*40)
+        print('{}'.format(json.dumps(self.l.messages, default=str)))
+
+    def test_function_with_1_retry_forced_with_jitter(self):
+
+        @retry_on_exception(number_of_retries=2, enable_jitter=True)
+        def test_function(fh)->int:
+            retry_count = 0
+            fh.seek(0)
+            data = fh.read()
+            try:
+                retry_count = int(data.decode('utf-8'))
+            except:
+                retry_count = 0
+            if retry_count > 0:
+                return 1
+            fh.seek(0)
+            fh.write('1'.encode('utf-8'))
+            raise Exception('Oopsie')
+
+        result = test_function(fh=self.tmp_file_handler)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, int)
+        self.assertEqual(result, 1)
 
 
 
