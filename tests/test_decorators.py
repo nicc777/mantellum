@@ -111,7 +111,7 @@ class TestDecoratorRetryOnException(unittest.TestCase):    # pragma: no cover
 
     def test_function_with_1_retry_forced_with_jitter(self):
 
-        @retry_on_exception(number_of_retries=2, enable_jitter=True)
+        @retry_on_exception(number_of_retries=3, enable_jitter=True)
         def test_function(fh)->int:
             retry_count = 0
             fh.seek(0)
@@ -120,10 +120,12 @@ class TestDecoratorRetryOnException(unittest.TestCase):    # pragma: no cover
                 retry_count = int(data.decode('utf-8'))
             except:
                 retry_count = 0
+            print('test_function_with_1_retry_forced_with_jitter(): FINAL RETRY COUNT: {}'.format(retry_count))
             if retry_count > 0:
                 return 1
             fh.seek(0)
             fh.write('1'.encode('utf-8'))
+            fh.flush()
             raise Exception('Oopsie')
 
         result = test_function(fh=self.tmp_file_handler)

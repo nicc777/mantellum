@@ -30,6 +30,11 @@ def timer(func):
     return wrapper_timer
 
 
+remain_in_retry_loop = True
+jitter_time = 0.0
+final_reason = 'All retries failed'
+exception_thrown = False
+
 def retry_on_exception(
     number_of_retries: int=3,
     default_after_all_retries_failed=None,
@@ -59,14 +64,18 @@ def retry_on_exception(
         >>> F()
         123
     """
-    exception_thrown = False
-    remain_in_retry_loop = True
-    final_reason = 'All retries failed'
-    jitter_time = 0.0
+    global remain_in_retry_loop
+    global jitter_time
+    global final_reason
+    global exception_thrown
     try:
         def retry_func(func):
             @functools.wraps(func)
             def wrapper_func(*args, **kwargs):
+                global remain_in_retry_loop 
+                global jitter_time
+                global final_reason
+                global exception_thrown
                 retries = 0
                 while remain_in_retry_loop:
                     decorator_logger.info('Try #{} for function {}()'.format(retries, func.__name__))
@@ -75,7 +84,7 @@ def retry_on_exception(
                         value = func(*args, **kwargs)
                         return value
                     except Exception as exception:
-                        l.error('EXCEPTION: {}'.format(traceback.format_exc()))
+                        decorator_logger.error('EXCEPTION: {}'.format(traceback.format_exc()))
                         exception_name = exception.__class__.__name__
 
                         do_retry = True
@@ -93,10 +102,12 @@ def retry_on_exception(
                         if do_retry is True:
                             if enable_jitter is False:
                                 time.sleep(sleep_time_seconds_between_retries)
+                                decorator_logger.info('Sleeping without jitter: {}'.format(sleep_time_seconds_between_retries))
                             else:
                                 jitter_time += random.randint(100, 300) / 100.0
+                                decorator_logger.info('Sleeping with jitter: {}'.format(jitter_time))
                                 time.sleep(retries+jitter_time)
-                    if number_of_retries > retries:
+                    if retries > number_of_retries:
                         remain_in_retry_loop = False
                 decorator_logger.info('Function {}() retried {} times without success'.format(func.__name__, retries-1))
                 raise Exception(final_reason)
