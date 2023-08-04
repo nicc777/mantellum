@@ -131,8 +131,9 @@ class MetricWrapper:
         self.records.append(record)
 
     def push_metrics(self, clear_records_after_push: bool=True):
-        for record in self.records:
-            self.push_metric_handler.push_metric(record=record)
+        if 'MetricRecords' in self.records:
+            for record in self.records['MetricRecords']:
+                self.push_metric_handler.push_metric(record=record)
         if clear_records_after_push is True:
             self.records = list()
 
@@ -184,7 +185,7 @@ class MeasuredFunctionCallHandler:
             recorded_value=diff_time,
             override_timestamp_value=finish_time
         )
-        self.metric_wrapper.add_metric_record(record=MetricRecords(metric_unit='', storage_resolution=60))
+        self.metric_wrapper.add_metric_record(record=record)
         if exception_raised is True and absorb_exception is False and exception_object is not None:
             raise exception_object
 
