@@ -107,7 +107,8 @@ class TestDecoratorRetryOnException(unittest.TestCase):    # pragma: no cover
         self.tmp_file_handler.close()
         print('Log Message Dump:')
         print('-'*40)
-        print('{}'.format(json.dumps(self.l.messages, default=str)))
+        for log_line in self.l.messages:
+            print('COLLECTED_LOG_LINE: {}'.format(json.dumps(log_line, default=str)))
 
     def test_function_with_1_retry_forced_with_jitter(self):
 
