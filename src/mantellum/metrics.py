@@ -113,12 +113,12 @@ def dummy_metric_push_handler(metric_record: dict):
 class DummyMetricPushHandler(MetricPushHandlerBaseClass):
 
     def __init__(self):
-        super.__init__(handler_function_implementation=dummy_metric_push_handler)
+        super().__init__(handler_function_implementation=dummy_metric_push_handler)
 
 
 class MetricWrapper:
     
-    def __init__(self, namespace: str='Custom/Undefined', metric_name: str='UndefinedMetric', push_metric_handler: MetricPushBaseClass=DummyMetricPushHandler()):
+    def __init__(self, namespace: str='Custom/Undefined', metric_name: str='UndefinedMetric', push_metric_handler: MetricPushHandlerBaseClass=DummyMetricPushHandler()):
         self.namespace = namespace
         self.metric_name = metric_name
         self.records = list()
@@ -141,7 +141,7 @@ class MeasuredFunctionCallHandler:
         application_name: str,
         function_name: str,
         registered_function: object,
-        push_metric_handler: MetricPushBaseClass=DummyMetricPushHandler()
+        push_metric_handler: MetricPushHandlerBaseClass=DummyMetricPushHandler()
     ):
         self.function_name = function_name
         self.metric_wrapper = MetricWrapper(

@@ -47,7 +47,7 @@ class TestClassDimensions(unittest.TestCase):    # pragma: no cover
         self.assertIsNotNone(dump)
         self.assertIsInstance(dump, dict)
         self.assertTrue('Dimensions' in dump)
-        self.assertIsNotNone(dump('Dimensions'))
+        self.assertIsNotNone(dump['Dimensions'])
         self.assertIsInstance(dump['Dimensions'], list)
         self.assertEqual(len(dump['Dimensions']), 2)
         for item in dump['Dimensions']:
