@@ -30,11 +30,6 @@ def timer(func):
     return wrapper_timer
 
 
-remain_in_retry_loop = True
-jitter_time = 0.0
-final_reason = 'All retries failed'
-exception_thrown = False
-
 def retry_on_exception(
     number_of_retries: int=3,
     default_after_all_retries_failed=None,
@@ -64,18 +59,18 @@ def retry_on_exception(
         >>> F()
         123
     """
-    global remain_in_retry_loop
-    global jitter_time
-    global final_reason
-    global exception_thrown
+    remain_in_retry_loop = True
+    jitter_time = 0.0
+    final_reason = 'All retries failed'
+    exception_thrown = False
     try:
         def retry_func(func):
             @functools.wraps(func)
             def wrapper_func(*args, **kwargs):
-                global remain_in_retry_loop 
-                global jitter_time
-                global final_reason
-                global exception_thrown
+                nonlocal  remain_in_retry_loop 
+                nonlocal  jitter_time
+                nonlocal  final_reason
+                nonlocal  exception_thrown
                 retries = 0
                 while remain_in_retry_loop:
                     decorator_logger.info('Try #{} for function {}()'.format(retries, func.__name__))
